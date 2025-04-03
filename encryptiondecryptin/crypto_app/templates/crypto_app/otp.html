@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OTP Encryption/Decryption</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding-bottom: 50px;
+        }
+        .header {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            padding: 30px 0;
+            margin-bottom: 30px;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            border: none;
+        }
+        .card-header {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            border-radius: 10px 10px 0 0 !important;
+            font-weight: bold;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            border: none;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #5a0cb1 0%, #1565e6 100%);
+        }
+        .key-display {
+            font-family: monospace;
+            font-size: 1rem; 
+            background-color: #f0f0f0;
+            padding: 15px;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            word-break: break-all;
+            max-height: 200px;
+            overflow-y: auto;
+            position: relative;
+            line-height: 1.4; 
+        }
+        .mt-4 h5 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: #6a11cb;
+        }
+        .nav-tabs .nav-link {
+            color: #6a11cb;
+        }
+        .nav-tabs .nav-link.active {
+            color: #2575fc;
+            font-weight: bold;
+        }
+        .encryption-icon {
+            font-size: 1.5rem;
+            margin-right: 10px;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            padding: 2px 5px;
+            font-size: 0.7rem;
+            background-color: rgba(255, 255, 255, 0.8);
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .copy-btn:hover {
+            background-color: #e9ecef;
+        }
+        .navbar {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            margin-bottom: 20px;
+        }
+        .navbar-brand, .nav-link {
+            color: white !important;
+        }
+        .nav-link.active {
+            font-weight: bold;
+            text-decoration: underline;
+        }
+        .nav-tabs .nav-link {
+            color: #6a11cb;
+            background-color: #f0f0f0;
+            margin-right: 5px;
+            border: 1px solid #dee2e6;
+        }
+
+        .nav-tabs .nav-link.active {
+            color: white;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            font-weight: bold;
+            border: 1px solid #6a11cb;
+        }
+
+        .nav-tabs .nav-link:hover {
+            background-color: #e9ecef;
+        }
+
+        .nav-tabs .nav-link.active:hover {
+            background: linear-gradient(135deg, #5a0cb1 0%, #1565e6 100%);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'index' %}">🔐 Dagger Encryption App</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{% url 'otp' %}">OTP</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'aes' %}">AES</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'triple_des' %}">3DES</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'rsa' %}">RSA</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="header text-center">
+        <h1><i class="encryption-icon">🔑</i>One-Time Pad (OTP) Encryption</h1>
+        <p class="lead">Perfect secrecy with one-time pad encryption</p>
+    </div>
+
+    <div class="container">
+        {% if error %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ error }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endif %}
+
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="encryption-icon">🔑</i>OTP Key Generation
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">Generate a new OTP key for encryption and decryption.</p>
+                        <form method="post" action="">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="generate_key">
+                            <button type="submit" class="btn btn-primary">Generate New Key</button>
+                        </form>
+                        
+                        {% if key %}
+                        <div class="row mt-4">
+                            <div class="col-md-12">
+                                <h5>OTP Key</h5>
+                                <div class="key-display">
+                                    {{ key }}
+                                    <button class="copy-btn" onclick="copyToClipboard('key-content')">Copy</button>
+                                </div>
+                                <input type="hidden" id="key-content" value="{{ key }}">
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <ul class="nav nav-tabs mb-4" id="cryptoTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="encrypt-tab" data-bs-toggle="tab" data-bs-target="#encrypt" type="button" role="tab" aria-controls="encrypt" aria-selected="true">Encrypt</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="decrypt-tab" data-bs-toggle="tab" data-bs-target="#decrypt" type="button" role="tab" aria-controls="decrypt" aria-selected="false">Decrypt</button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="cryptoTabContent">
+            <!-- Encryption Tab -->
+            <div class="tab-pane fade show active" id="encrypt" role="tabpanel" aria-labelledby="encrypt-tab">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <i class="encryption-icon">🔒</i>Encrypt Message
+                            </div>
+                            <div class="card-body">
+                                <form method="post" action="">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="encrypt">
+                                    
+                                    <div class="mb-3">
+                                        <label for="text_to_encrypt" class="form-label">Text to Encrypt</label>
+                                        <textarea class="form-control" id="text_to_encrypt" name="text_to_encrypt" rows="3" required>{{ original_text }}</textarea>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="key" class="form-label">OTP Key</label>
+                                        <textarea class="form-control" id="key" name="key" rows="3" required>{{ key }}</textarea>
+                                    </div>
+                                    
+                                    <button type="submit" class="btn btn-primary">Encrypt</button>
+                                </form>
+                                
+                                {% if encrypted_text %}
+                                <div class="mt-4">
+                                    <h5>Encrypted Result:</h5>
+                                    <div class="key-display">
+                                        {{ encrypted_text }}
+                                        <button class="copy-btn" onclick="copyToClipboard('encrypted-content')">Copy</button>
+                                    </div>
+                                    <input type="hidden" id="encrypted-content" value="{{ encrypted_text }}">
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Decryption Tab -->
+            <div class="tab-pane fade" id="decrypt" role="tabpanel" aria-labelledby="decrypt-tab">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <i class="encryption-icon">🔓</i>Decrypt Message
+                            </div>
+                            <div class="card-body">
+                                <form method="post" action="">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="decrypt">
+                                    
+                                    <div class="mb-3">
+                                        <label for="text_to_decrypt" class="form-label">Text to Decrypt</label>
+                                        <textarea class="form-control" id="text_to_decrypt" name="text_to_decrypt" rows="3" required>{{ encrypted_text }}</textarea>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="key_decrypt" class="form-label">OTP Key</label>
+                                        <textarea class="form-control" id="key_decrypt" name="key" rows="3" required>{{ key }}</textarea>
+                                    </div>
+                                    
+                                    <button type="submit" class="btn btn-primary">Decrypt</button>
+                                </form>
+                                
+                                {% if decrypted_text %}
+                                <div class="mt-4">
+                                    <h5>Decrypted Result:</h5>
+                                    <div class="key-display">
+                                        {{ decrypted_text }}
+                                        <button class="copy-btn" onclick="copyToClipboard('decrypted-content')">Copy</button>
+                                    </div>
+                                    <input type="hidden" id="decrypted-content" value="{{ decrypted_text }}">
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="encryption-icon">ℹ️</i>About OTP Encryption
+                    </div>
+                    <div class="card-body">
+                        <h5>How One-Time Pad Works</h5>
+                        <p>One-Time Pad (OTP) is a type of encryption that has been proven to be impossible to crack if used correctly.</p>
+                        <ul>
+                            <li><strong>Key Generation:</strong> A truly random key that is at least as long as the message.</li>
+                            <li><strong>Encryption:</strong> Each bit or character of the plaintext is combined with the corresponding bit or character from the key using XOR operation.</li>
+                            <li><strong>Decryption:</strong> The same key is used to decrypt the message using the same XOR operation.</li>
+                        </ul>
+                        <p>For perfect secrecy, the key must be truly random, used only once, kept completely secret, and be at least as long as the message.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            const textToCopy = element.value;
+            
+            navigator.clipboard.writeText(textToCopy).then(function() {
+                // Show a temporary "Copied!" message
+                const button = event.target;
+                const originalText = button.textContent;
+                button.textContent = "Copied!";
+                setTimeout(function() {
+                    button.textContent = originalText;
+                }, 1500);
+            }, function() {
+                alert("Failed to copy text");
+            });
+        }
+    </script>
+</body>
+</html>
+

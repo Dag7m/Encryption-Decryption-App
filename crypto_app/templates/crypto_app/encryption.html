@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RSA Encryption/Decryption</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding-bottom: 50px;
+        }
+        .header {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            padding: 30px 0;
+            margin-bottom: 30px;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            border: none;
+        }
+        .card-header {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            border-radius: 10px 10px 0 0 !important;
+            font-weight: bold;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            border: none;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #5a0cb1 0%, #1565e6 100%);
+        }
+        .key-display {
+            font-family: monospace;
+            font-size: 1rem; 
+            background-color: #f0f0f0;
+            padding: 15px;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            word-break: break-all;
+            max-height: 200px;
+            overflow-y: auto;
+            position: relative;
+            line-height: 1.4; 
+        }
+        .mt-4 h5 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: #6a11cb;
+        }
+        .nav-tabs .nav-link {
+            color: #6a11cb;
+        }
+        .nav-tabs .nav-link.active {
+            color: #2575fc;
+            font-weight: bold;
+        }
+        .encryption-icon {
+            font-size: 1.5rem;
+            margin-right: 10px;
+        }
+        .nav-tabs .nav-link {
+    color: #6a11cb;
+    background-color: #f0f0f0;
+    margin-right: 5px;
+    border: 1px solid #dee2e6;
+}
+
+    .nav-tabs .nav-link.active {
+        color: white;
+        background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+        font-weight: bold;
+        border: 1px solid #6a11cb;
+    }
+
+    .nav-tabs .nav-link:hover {
+        background-color: #e9ecef;
+    }
+
+    .nav-tabs .nav-link.active:hover {
+        background: linear-gradient(135deg, #5a0cb1 0%, #1565e6 100%);
+    }
+    </style>
+</head>
+<body>
+    <div class="header text-center">
+        <h1><i class="encryption-icon">🔐</i>RSA Encryption & Decryption</h1>
+        <p class="lead">Secure your messages with RSA public-key cryptography</p>
+    </div>
+
+    <div class="container">
+        {% if error %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ error }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endif %}
+
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="encryption-icon">🔑</i>RSA Key Generation
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">Generate a new pair of RSA keys (2048-bit) for encryption and decryption.</p>
+                        <form method="post" action="">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="generate_keys">
+                            <button type="submit" class="btn btn-primary">Generate New Keys</button>
+                        </form>
+                        
+                        {% if private_key and public_key %}
+                        <div class="row mt-4">
+                            <div class="col-md-6">
+                                <h5>Private Key (Keep Secret!)</h5>
+                                <div class="key-display">{{ private_key }}</div>
+                            </div>
+                            <div class="col-md-6">
+                                <h5>Public Key (Share Freely)</h5>
+                                <div class="key-display">{{ public_key }}</div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <ul class="nav nav-tabs mb-4" id="cryptoTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="encrypt-tab" data-bs-toggle="tab" data-bs-target="#encrypt" type="button" role="tab" aria-controls="encrypt" aria-selected="true">Encrypt</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="decrypt-tab" data-bs-toggle="tab" data-bs-target="#decrypt" type="button" role="tab" aria-controls="decrypt" aria-selected="false">Decrypt</button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="cryptoTabContent">
+            <!-- Encryption Tab -->
+            <div class="tab-pane fade show active" id="encrypt" role="tabpanel" aria-labelledby="encrypt-tab">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <i class="encryption-icon">🔒</i>Encrypt Message
+                            </div>
+                            <div class="card-body">
+                                <form method="post" action="">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="encrypt">
+                                    
+                                    <div class="mb-3">
+                                        <label for="text_to_encrypt" class="form-label">Text to Encrypt</label>
+                                        <textarea class="form-control" id="text_to_encrypt" name="text_to_encrypt" rows="3" required>{{ original_text }}</textarea>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="public_key" class="form-label">Public Key</label>
+                                        <textarea class="form-control" id="public_key" name="public_key" rows="5" required>{{ public_key }}</textarea>
+                                    </div>
+                                    
+                                    <button type="submit" class="btn btn-primary">Encrypt</button>
+                                </form>
+                                
+                                {% if encrypted_text %}
+                                <div class="mt-4">
+                                    <h5>Encrypted Result:</h5>
+                                    <div class="form-control bg-light" style="min-height: 100px; word-break: break-all;">{{ encrypted_text }}</div>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Decryption Tab -->
+            <div class="tab-pane fade" id="decrypt" role="tabpanel" aria-labelledby="decrypt-tab">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <i class="encryption-icon">🔓</i>Decrypt Message
+                            </div>
+                            <div class="card-body">
+                                <form method="post" action="">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="decrypt">
+                                    
+                                    <div class="mb-3">
+                                        <label for="text_to_decrypt" class="form-label">Text to Decrypt</label>
+                                        <textarea class="form-control" id="text_to_decrypt" name="text_to_decrypt" rows="3" required>{{ encrypted_text }}</textarea>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="private_key" class="form-label">Private Key</label>
+                                        <textarea class="form-control" id="private_key" name="private_key" rows="5" required>{{ private_key }}</textarea>
+                                    </div>
+                                    
+                                    <button type="submit" class="btn btn-primary">Decrypt</button>
+                                </form>
+                                
+                                {% if decrypted_text %}
+                                <div class="mt-4">
+                                    <h5>Decrypted Result:</h5>
+                                    <div class="form-control bg-light" style="min-height: 100px;">{{ decrypted_text }}</div>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="encryption-icon">ℹ️</i>About RSA Encryption
+                    </div>
+                    <div class="card-body">
+                        <h5>How RSA Works</h5>
+                        <p>RSA (Rivest–Shamir–Adleman) is a public-key cryptosystem that is widely used for secure data transmission.</p>
+                        <ul>
+                            <li><strong>Key Generation:</strong> Creates a pair of public and private keys.</li>
+                            <li><strong>Encryption:</strong> Anyone with the public key can encrypt a message.</li>
+                            <li><strong>Decryption:</strong> Only the holder of the private key can decrypt the message.</li>
+                        </ul>
+                        <p>This implementation uses 2048-bit RSA keys with OAEP padding and SHA-256 hashing for secure encryption.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+

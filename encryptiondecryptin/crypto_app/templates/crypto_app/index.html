@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cryptography Application</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding-bottom: 50px;
+        }
+        .header {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            padding: 30px 0;
+            margin-bottom: 30px;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            border: none;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            height: 100%;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        .card-header {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            border-radius: 10px 10px 0 0 !important;
+            font-weight: bold;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            border: none;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #5a0cb1 0%, #1565e6 100%);
+        }
+        .encryption-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+        .feature-list {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        .feature-list li {
+            padding: 5px 0;
+        }
+        .feature-list li:before {
+            content: "✓";
+            color: #2575fc;
+            margin-right: 8px;
+            font-weight: bold;
+        }
+        .nav-tabs .nav-link {
+            color: #6a11cb;
+            background-color: #f0f0f0;
+            margin-right: 5px;
+            border: 1px solid #dee2e6;
+        }
+
+        .nav-tabs .nav-link.active {
+            color: white;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            font-weight: bold;
+            border: 1px solid #6a11cb;
+        }
+
+        .nav-tabs .nav-link:hover {
+            background-color: #e9ecef;
+        }
+
+        .nav-tabs .nav-link.active:hover {
+            background: linear-gradient(135deg, #5a0cb1 0%, #1565e6 100%);
+        }
+    </style>
+</head>
+<body>
+    <div class="header text-center">
+        <h1>🔐 CNS Encryption Application</h1>
+        <p class="lead">Secure your messages with various encryption algorithms</p>
+    </div>
+
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h2>Choose an Encryption Method</h2>
+                        <p>Select one of the encryption methods below to get started</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- OTP Card -->
+            <div class="col-md-6 col-lg-3 mb-4">
+                <div class="card text-center">
+                    <div class="card-header">
+                        One-Time Pad (OTP)
+                    </div>
+                    <div class="card-body d-flex flex-column">
+                        <div class="encryption-icon">🔑</div>
+                        <h5 class="card-title">OTP Encryption</h5>
+                        <p class="card-text">Perfect secrecy with one-time pad encryption.</p>
+                        <ul class="feature-list text-start mb-4">
+                            <li>Unbreakable when used correctly</li>
+                            <li>Simple XOR operation</li>
+                            <li>Key must be as long as message</li>
+                        </ul>
+                        <a href="{% url 'otp' %}" class="btn btn-primary mt-auto">Use OTP</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AES Card -->
+            <div class="col-md-6 col-lg-3 mb-4">
+                <div class="card text-center">
+                    <div class="card-header">
+                        AES
+                    </div>
+                    <div class="card-body d-flex flex-column">
+                        <div class="encryption-icon">🔒</div>
+                        <h5 class="card-title">AES Encryption</h5>
+                        <p class="card-text">Advanced Encryption Standard with 256-bit keys.</p>
+                        <ul class="feature-list text-start mb-4">
+                            <li>Industry standard encryption</li>
+                            <li>Highly secure symmetric cipher</li>
+                            <li>Used by governments worldwide</li>
+                        </ul>
+                        <a href="{% url 'aes' %}" class="btn btn-primary mt-auto">Use AES</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3DES Card -->
+            <div class="col-md-6 col-lg-3 mb-4">
+                <div class="card text-center">
+                    <div class="card-header">
+                        3DES
+                    </div>
+                    <div class="card-body d-flex flex-column">
+                        <div class="encryption-icon">🔐</div>
+                        <h5 class="card-title">Triple DES</h5>
+                        <p class="card-text">Triple Data Encryption Standard.</p>
+                        <ul class="feature-list text-start mb-4">
+                            <li>Applies DES three times</li>
+                            <li>Legacy encryption standard</li>
+                            <li>Still used in financial systems</li>
+                        </ul>
+                        <a href="{% url 'triple_des' %}" class="btn btn-primary mt-auto">Use 3DES</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RSA Card -->
+            <div class="col-md-6 col-lg-3 mb-4">
+                <div class="card text-center">
+                    <div class="card-header">
+                        RSA
+                    </div>
+                    <div class="card-body d-flex flex-column">
+                        <div class="encryption-icon">🗝️</div>
+                        <h5 class="card-title">RSA Encryption</h5>
+                        <p class="card-text">Public-key cryptography with 2048-bit keys.</p>
+                        <ul class="feature-list text-start mb-4">
+                            <li>Asymmetric encryption</li>
+                            <li>Public & private key pairs</li>
+                            <li>Widely used for secure communications</li>
+                        </ul>
+                        <a href="{% url 'rsa' %}" class="btn btn-primary mt-auto">Use RSA</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        About This Application
+                    </div>
+                    <div class="card-body">
+                        <h5>Cryptography Application</h5>
+                        <p>This application demonstrates various encryption and decryption techniques:</p>
+                        <ul>
+                            <li><strong>One-Time Pad (OTP):</strong> A simple but theoretically unbreakable encryption method when used correctly.</li>
+                            <li><strong>AES (Advanced Encryption Standard):</strong> A symmetric encryption algorithm widely used for secure data transmission.</li>
+                            <li><strong>3DES (Triple DES):</strong> A symmetric-key block cipher that applies the DES cipher algorithm three times to each data block.</li>
+                            <li><strong>RSA:</strong> An asymmetric encryption algorithm that uses a pair of keys (public and private) for secure data transmission.</li>
+                        </ul>
+                        <p>Each method has its own strengths and use cases. Choose the one that best fits your security needs.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
